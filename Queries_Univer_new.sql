@@ -10,29 +10,24 @@ ORDER BY persona.apellido1 DESC, persona.apellido2 DESC, persona.nombre DESC;
 database.     */
 
 SELECT persona.nombre , persona.apellido2, persona.apellido1 FROM persona
-WHERE persona.telefono IS NULL;
-
+WHERE persona.telefono IS NULL AND persona.tipo = 'alumno';
 
 
 
 /* 3. Return the list of students born in 1999. */
 
-/* count num of students*/SELECT COUNT(persona.fecha_nacimiento) as nn FROM persona
-  WHERE persona.fecha_nacimiento LIKE '__99%' AND persona.tipo = 'alumno';
-
-/* or show full data of students */
 SELECT * from persona
 WHERE persona.fecha_nacimiento IN
 (SELECT persona.fecha_nacimiento FROM persona
-WHERE persona.fecha_nacimiento LIKE '__99%' AND persona.tipo = 'alumno');
-
+ WHERE YEAR(persona.fecha_nacimiento) = '1999'
+AND persona.tipo = 'alumno');
 
 
 /* 4. Return the list of teachers who have not registered their phone number in the database
 //data and in addition its nif finishes in K.   */
 
 SELECT persona.nombre, persona.apellido1, persona.apellido2, persona.nif FROM persona
-  WHERE persona.telefono IS null AND persona.nif LIKE '%K';
+WHERE persona.tipo = 'profesor' AND persona.telefono IS null AND persona.nif LIKE '%K';
 
 
 
@@ -66,7 +61,7 @@ WHERE persona.nif = '26902806M';
 Degree in Computer Engineering (Syllabus 2015). */
 
 SELECT DISTINCT departamento.nombre as DEPARTAMENTO, grado.nombre AS GRADO FROM departamento, asignatura, grado
-WHERE grado.id = 4
+WHERE grado.nombre = 'Grado en Ingeniería Informática (Plan 2015)'
 GROUP BY asignatura.id_profesor;
 
 /* 9. Returns a list of all students who have enrolled in a subject during the
