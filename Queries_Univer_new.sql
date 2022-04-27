@@ -100,19 +100,23 @@ four columns, name of the department, first surname, second surname and name of 
 The result will be sorted alphabetically from lowest to highest by department name, last name, and
 first name. */
 
-SELECT departamento.nombre, persona.apellido1, persona.apellido2, persona.nombre, persona.tipo  FROM departamento, persona
-RIGHT JOIN profesor
-ON persona.id = profesor.id_profesor
-WHERE departamento.id = profesor.id_departamento OR profesor.id_departamento IS NULL
-ORDER BY departamento.nombre ASC, persona.apellido1 ASC, persona.apellido2 ASC, persona.nombre ASC
+SELECT dp.nombre AS 'departamento nombre', pr.apellido1, pr.apellido2, pr.nombre, pr.tipo FROM profesor AS pf
+RIGHT JOIN persona as pr
+ON pf.id_profesor = pr.id
+LEFT JOIN departamento AS dp
+ON pf.id_departamento = dp.id
+WHERE pr.tipo = 'profesor'
+ORDER BY dp.nombre, pr.apellido1, pr.apellido2, pr.nombre
+
 
 /* 2.   Return a list of teachers who are not associated with a department.    */
 
-SELECT departamento.nombre, persona.apellido1, persona.apellido2, persona.nombre, persona.tipo  FROM departamento, persona
-RIGHT JOIN profesor
-ON persona.id = profesor.id_profesor
-WHERE profesor.id_departamento IS NULL
-ORDER BY departamento.nombre ASC, persona.apellido1 ASC, persona.apellido2 ASC, persona.nombre ASC
+SELECT * FROM profesor AS pf
+RIGHT JOIN persona as pr
+ON pf.id_profesor = pr.id
+LEFT JOIN departamento AS dp
+ON pf.id_departamento = dp.id
+WHERE pr.tipo = 'profesor' AND dp.id IS NULL
 
 /* 3.  Return a list of departments that do not have associate professors. */
 
@@ -221,8 +225,7 @@ name of the degree, type of subject and the sum of the credits of all the subjec
 SELECT grado.nombre, asignatura.tipo, SUM(asignatura.tipo) from asignatura
 RIGHT JOIN grado
 ON asignatura.id_grado = grado.id
-GROUP BY grado.nombre, asignatura.tipo;
-
+GROUP BY grado.nombre;
 
 
 
@@ -230,11 +233,12 @@ GROUP BY grado.nombre, asignatura.tipo;
 each of the school courses. The result should show two columns, one column with
 the year of the start of the school year and another with the number of students enrolled.   */
 
-SELECT curso_escolar.anyo_inicio, COUNT(alumno_se_matricula_asignatura.id_curso_escolar) FROM curso_escolar
-LEFT JOIN alumno_se_matricula_asignatura
-ON curso_escolar.id = alumno_se_matricula_asignatura.id_curso_escolar
-GROUP BY curso_escolar.anyo_inicio;
+SELECT DISTINCT curso_escolar.anyo_inicio,  COUNT(alumno_se_matricula_asignatura.id_curso_escolar) FROM curso_escolar
 
+LEFT JOIN alumno_se_matricula_asignatura
+ON curso_escolar.id = alumno_se_matricula_asignatura.id_curso_escolar 
+
+GROUP BY alumno_se_matricula_asignatura.id_alumno
 
 
 /* 9. Return a list with the number of subjects taught by each teacher. The listing must
