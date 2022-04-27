@@ -1,7 +1,7 @@
 /* 1. Return a list with the first surname, second surname and first name of all students. The list must
 //be sorted alphabetically from lowest to highest by first surname, second surname and first name.  */
 
-SELECT persona.apellido1 as a1, persona.apellido2 as a2, persona.nombre as nom FROM persona
+SELECT persona.apellido1, persona.apellido2, persona.nombre FROM persona
 WHERE persona.tipo = 'alumno'
 ORDER BY persona.apellido1 DESC, persona.apellido2 DESC, persona.nombre DESC;
 
@@ -54,21 +54,43 @@ ORDER BY departamento.nombre ASC, persona.apellido1 ASC, persona.apellido2 ASC, 
 /* 7.     Returns a list with the name of the subjects, year of beginning and year of end of the school year of
 the student with nif 26902806M.*/
 
-SELECT asignatura.nombre, curso_escolar.anyo_inicio, curso_escolar.anyo_fin, persona.nif FROM asignatura, curso_escolar, persona
-WHERE persona.nif = '26902806M';
+SELECT asignatura.nombre, curso_escolar.anyo_inicio, curso_escolar.anyo_fin from asignatura
+RIGHT JOIN curso_escolar
+ON asignatura.id = curso_escolar.id 
+WHERE asignatura.id IN (
+SELECT alumno_se_matricula_asignatura.id_asignatura FROM alumno_se_matricula_asignatura
+WHERE alumno_se_matricula_asignatura.id_alumno IN
+(SELECT alumno_se_matricula_asignatura.id_alumno FROM alumno_se_matricula_asignatura
+LEFT JOIN persona
+ON alumno_se_matricula_asignatura.id_alumno = persona.id
+WHERE persona.id IN (SELECT persona.id FROM persona
+                     WHERE persona.nif = '26902806M')))
 
 /* 8.   Return a list with the names of all the departments that have professors who teach a subject in the
 Degree in Computer Engineering (Syllabus 2015). */
 
-SELECT DISTINCT departamento.nombre as DEPARTAMENTO, grado.nombre AS GRADO FROM departamento, asignatura, grado
-WHERE grado.nombre = 'Grado en Ingeniería Informática (Plan 2015)'
-GROUP BY asignatura.id_profesor;
+SELECT departamento.nombre FROM departamento
+WHERE departamento.id IN (
+
+SELECT profesor.id_departamento FROM profesor
+LEFT JOIN asignatura
+ON profesor.id_profesor = asignatura.id_profesor 
+WHERE asignatura.id_grado IN (
+    
+SELECT asignatura.id_grado FROM asignatura
+                           LEFT JOIN grado
+                           ON asignatura.id_grado = grado.id
+                           WHERE grado.nombre = 'Grado en Ingeniería Informática (Plan 2015)'))
 
 /* 9. Returns a list of all students who have enrolled in a subject during the
 school year 2018/2019. */
 
-SELECT persona.apellido1, persona.apellido2, persona.nombre, curso_escolar.anyo_inicio FROM persona, curso_escolar
-WHERE curso_escolar.anyo_inicio = 2018;
+SELECT * FROM persona 
+WHERE persona.id IN 
+(SELECT alumno_se_matricula_asignatura.id_alumno FROM alumno_se_matricula_asignatura
+LEFT JOIN curso_escolar
+ON alumno_se_matricula_asignatura.id_curso_escolar = curso_escolar.id
+WHERE curso_escolar.anyo_inicio = '2018')
 
 
 /* **********Solve the following 6 queries using the LEFT JOIN and RIGHT JOIN clauses.****   */
